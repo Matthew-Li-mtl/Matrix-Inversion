@@ -13,7 +13,7 @@ class Fraction:
         elif self.numerator != 1:   #
             while not done:
                 done = True
-                higher = max(self.numerator, self.denominator)
+                higher = max(abs(self.numerator), abs(self.denominator))
                 for div in range(int(((higher + (higher % 2)) / 2) + 1)):
                     if div != 0 and div != 1: # quick fix
                         if self.numerator % div == 0 and self.denominator % div == 0:
@@ -84,16 +84,20 @@ print(strMatrix)
 
 matrix = []
 copyOfOriginalMatrix = []
+copyForDeterminant = []
 matrixHasInverse = True
 
 for i in range(len(strMatrix)):
     line = []
     line2 = [] # to prevent instance linking
+    line3 = []
     for j in range(len(strMatrix)):
         line += [Fraction(0, 1)]
         line2 += [Fraction(0, 1)]
+        line3 += [Fraction(0, 1)]
     matrix += [line]
     copyOfOriginalMatrix += [line2]
+    copyForDeterminant += [line3]
 
 def createIdentity(size):
     identityMatrix = []
@@ -122,6 +126,7 @@ for i in range(len(strMatrix)):
             matrix[i][j].numerator = int(numStr)
             matrix[i][j].denominator = 1
         Fraction.copy(matrix[i][j], copyOfOriginalMatrix[i][j])
+        Fraction.copy(matrix[i][j], copyForDeterminant[i][j])
 
 def printMatrix(matrixArr, maxLen = -1, newLine = True):
     if maxLen == -1:
@@ -229,12 +234,128 @@ switchLines(matrix, 1, 2)
 printMatrix(matrix)
 """
 
+def determinant(originalMatrix):
+    for ind in range(len(originalMatrix[0])):
+        row = ind
+        foundReplacementRow = True
+        while originalMatrix[row][ind].numerator == 0 or not foundReplacementRow:
+            row += 1
+            if row == len(originalMatrix):
+                return 0 # Will occur if no 'viable' row is found to put a non-zero element in that index of the diagonal
+            foundReplacementRow = False
+            if originalMatrix[row][ind].numerator != 0:
+                addLine(originalMatrix, ind, originalMatrix, row)
+                row -= 1
+                print(ind, row)
+                printMatrix(originalMatrix)
+                foundReplacementRow = True
+
+        while row < len(originalMatrix) - 1:
+            row += 1
+            if originalMatrix[ind][row].numerator != 0:
+                modifiedNum = originalMatrix[row][ind].numerator
+                modifiedDen = originalMatrix[row][ind].denominator
+                modifierNum = originalMatrix[ind][ind].numerator
+                modifierDen = originalMatrix[ind][ind].denominator
+
+                k = Fraction(modifiedNum * -1, modifiedDen)
+                k2 = Fraction(modifierNum, modifierDen)
+                print(k, k2)
+                k.timesFraction(k2.inverse())
+
+                addLine(originalMatrix, row, originalMatrix, ind, k)
+
+                print(ind, row, k, k2)
+                printMatrix(originalMatrix)
+    result = Fraction(1, 1)
+    for i in range(len(originalMatrix)):
+        result.timesFraction(originalMatrix[i][i])
+    return result
+            
+        
+
 def rowIsEmpty(originalMatrix, row):
     for col in range(len(originalMatrix[row])):
         if originalMatrix[row][col].numerator != 0:
             return False
     return True
 
+def REFtoIdentity(originalMatrix):
+    identity = createIdentity(len(originalMatrix)) # all row operations will be done to the identity matrix as well.
+
+    """
+    print("Onto part 2")
+    for ind in range(len(originalMatrix[0])):
+        if originalMatrix[ind][ind].numerator * originalMatrix[ind][ind].denominator != 1: #checking if the fraction is equal to 1
+            k = Fraction(originalMatrix[ind][ind].denominator, originalMatrix[ind][ind].numerator)
+            originalMatrix[ind][ind].timesFraction(k)
+            identity[ind][ind].timesFraction(k)
+    print("Onto part 3")
+    """
+    for ind in range(len(originalMatrix[0])):
+        if originalMatrix[ind][ind].numerator * originalMatrix[ind][ind].denominator != 1: #checking if the fraction is equal to 1
+            if originalMatrix[ind][ind].numerator == 0:
+                row = ind
+                foundReplacementRow = True
+                while originalMatrix[row][ind].numerator == 0 or not foundReplacementRow:
+                    row += 1
+                    #if row == len(originalMatrix):
+                    #    return 0 # Will occur if no 'viable' row is found to put a non-zero element in that index of the diagonal
+                    foundReplacementRow = False
+                    if originalMatrix[row][ind].numerator != 0:
+                        addLine(originalMatrix, ind, originalMatrix, row)
+                        addLine(identity, ind, identity, row)
+                        row -= 1
+                        print(ind, row)
+                        print("---------------------------------------------")
+                        printMatrix(originalMatrix)
+                        printMatrix(identity)
+                        print("---------------------------------------------")
+                        foundReplacementRow = True
+            k = Fraction(originalMatrix[ind][ind].denominator, originalMatrix[ind][ind].numerator)
+            multiplyLine(originalMatrix, ind, k)
+            multiplyLine(identity, ind, k)
+            print(k)
+            print("---------------------------------------------")
+            printMatrix(originalMatrix)
+            printMatrix(identity)
+            print("---------------------------------------------")
+        row = ind
+        while row < len(originalMatrix) - 1:
+            row += 1
+            if originalMatrix[row][ind].numerator != 0:
+                k = Fraction(originalMatrix[row][ind].numerator * -1, originalMatrix[row][ind].denominator)
+
+                addLine(originalMatrix, row, originalMatrix, ind, k)
+                addLine(identity, row, identity, ind, k)
+
+                print(ind, row, k)
+                print("---------------------------------------------")
+                printMatrix(originalMatrix)
+                printMatrix(identity)
+                print("---------------------------------------------")
+    
+    return identity
+                
+
+
+"""
+
+    global matrixHasInverse
+    for col in range(len(originalMatrix[0])):
+        for j in range((len(originalMatrix) - col) - 1):
+            row = col + j
+
+            originalNum = originalMatrix[row][col].numerator
+            originalDen = originalMatrix[row][col].denominator
+
+
+
+            if originalNum != 0:
+
+"""   
+
+"""
 def REFsolo(originalMatrix):
     global matrixHasInverse
     for row in range(len(originalMatrix)):
@@ -323,7 +444,7 @@ def REFtoIdentity(originalMatrix):
             print("---------------------------------------------")
 
     return identity
-
+"""
 
 def RREFfromREFsolo(originalMatrix):
     for i in range(len(originalMatrix)):
@@ -361,24 +482,39 @@ def RREFtoPassedMatrix(originalMatrix, modifiedMatrix):
                 print("---------------------------------------------")
     return modifiedMatrix
 
-print("\nREF:\n")
-REFIdentity = REFtoIdentity(matrix)
+def simplifyMatrixFractions(originalMatrix):
+    for row in range(len(originalMatrix)):
+        for col in range(len(originalMatrix[row])):
+            originalMatrix[row][col].simplify()
 
 outputStr = ""
 
+determinantResult = determinant(copyForDeterminant)
+print("Determinant:", determinantResult)
+
+if determinantResult == 0:
+    matrixHasInverse = False
+    outputStr = "Determinant = 0. Matrix has no inverse."
+
 if matrixHasInverse:
+
+    print("\nREF:\n")
+    REFIdentity = REFtoIdentity(matrix)
 
     print("Result from operations on identity:")
     printMatrix(REFIdentity)
 
     print("\nRREF:\n")
     RREFMatrix = RREFtoPassedMatrix(matrix, REFIdentity) # if a matrix has REF, then it has RREF
+    simplifyMatrixFractions(RREFMatrix)
 
     print("Original matrix:")
     printMatrix(copyOfOriginalMatrix)
     print("Final inverse:")
     printMatrix(RREFMatrix)
+    print("Determinant =", determinantResult)
     outputStr = matrixToString(RREFMatrix)
+    outputStr += "\nDeterminant = " + str(determinantResult)
 else:
     outputStr = "Matrix has no inverse."
 
