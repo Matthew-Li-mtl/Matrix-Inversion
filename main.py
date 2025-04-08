@@ -1,21 +1,23 @@
-
 class Fraction:
-    def __init__ (self, numerator, denominator):
+
+    def __init__(self, numerator, denominator):
         self.numerator = numerator
         self.denominator = denominator
+
     def convertToInt(self):
         self.numerator = int(self.numerator)
         self.denominator = int(self.denominator)
+
     def simplify(self):
         done = False
-        if self.numerator == 0:     #
-            self.denominator = 1    # Avoiding edge cases
-        elif self.numerator != 1:   #
+        if self.numerator == 0:  #
+            self.denominator = 1  # Avoiding edge cases
+        elif self.numerator != 1:  #
             while not done:
                 done = True
                 higher = max(abs(self.numerator), abs(self.denominator))
                 for div in range(int(((higher + (higher % 2)) / 2) + 1)):
-                    if div != 0 and div != 1: # quick fix
+                    if div != 0 and div != 1:  # quick fix
                         if self.numerator % div == 0 and self.denominator % div == 0:
                             self.numerator /= div
                             self.denominator /= div
@@ -24,35 +26,42 @@ class Fraction:
             self.numerator *= -1
             self.denominator *= -1
         self.convertToInt()
+
     def timesInt(self, num):
         if self.denominator % num == 0:
             self.denominator /= num
         else:
             self.numerator *= num
         self.simplify()
+
     def timesFraction(self, fraction):
         if self.denominator % fraction.numerator == 0:
             self.denominator /= fraction.numerator
         else:
             self.numerator *= fraction.numerator
-            
+
         if self.numerator % fraction.denominator == 0:
             self.numerator /= fraction.denominator
         else:
             self.denominator *= fraction.denominator
         self.simplify()
+
     def inverse(self):
         return Fraction(self.denominator, self.numerator)
+
     def divInt(self, num):
         self.denominator *= num
         self.simplify()
+
     def divFraction(self, fraction):
         self.numerator *= fraction.denominator
         self.denominator *= fraction.numerator
         self.simplify()
+
     def set(self, newNumerator, newDenominator):
         self.numerator = int(newNumerator)
         self.denominator = int(newDenominator)
+
     def add(self, frac):
         selfNum = self.numerator
         selfDen = self.denominator
@@ -63,14 +72,17 @@ class Fraction:
         fracDen *= selfDen
         selfDen = fracDen + 0
         self.numerator = selfNum + fracNum
-        self.denominator = selfDen #work on simplification later
+        self.denominator = selfDen  #work on simplification later
         self.simplify()
+
     @staticmethod
     def copy(self, frac):
         frac.numerator = self.numerator
         frac.denominator = self.denominator
+
     def __str__(self):
         return str(self.numerator) + "/" + str(self.denominator)
+
 
 inputFile = open("input.txt", "r")
 inputStr = inputFile.read()
@@ -89,7 +101,7 @@ matrixHasInverse = True
 
 for i in range(len(strMatrix)):
     line = []
-    line2 = [] # to prevent instance linking
+    line2 = []  # to prevent instance linking
     line3 = []
     for j in range(len(strMatrix)):
         line += [Fraction(0, 1)]
@@ -98,6 +110,7 @@ for i in range(len(strMatrix)):
     matrix += [line]
     copyOfOriginalMatrix += [line2]
     copyForDeterminant += [line3]
+
 
 def createIdentity(size):
     identityMatrix = []
@@ -110,6 +123,7 @@ def createIdentity(size):
                 idLine += [Fraction(0, 1)]
         identityMatrix += [idLine]
     return identityMatrix
+
 
 print(matrix)
 
@@ -128,7 +142,8 @@ for i in range(len(strMatrix)):
         Fraction.copy(matrix[i][j], copyOfOriginalMatrix[i][j])
         Fraction.copy(matrix[i][j], copyForDeterminant[i][j])
 
-def printMatrix(matrixArr, maxLen = -1, newLine = True):
+
+def printMatrix(matrixArr, maxLen=-1, newLine=True):
     if maxLen == -1:
         for line in matrixArr:
             numLen = 0
@@ -136,7 +151,8 @@ def printMatrix(matrixArr, maxLen = -1, newLine = True):
                 if num.denominator == 1:
                     numLen = len(str(num.numerator))
                 else:
-                    numLen = len(str(num.numerator)) + 1 + len(str(num.denominator))
+                    numLen = len(str(num.numerator)) + 1 + len(
+                        str(num.denominator))
                 if numLen > maxLen:
                     maxLen = numLen
     for line in matrixArr:
@@ -154,9 +170,11 @@ def printMatrix(matrixArr, maxLen = -1, newLine = True):
     if newLine:
         print("\n")
 
+
 printMatrix(matrix)
 
-def matrixToString(matrixArr, maxLen = -1):
+
+def matrixToString(matrixArr, maxLen=-1):
     outputString = ""
     if maxLen == -1:
         for line in matrixArr:
@@ -165,7 +183,8 @@ def matrixToString(matrixArr, maxLen = -1):
                 if num.denominator == 1:
                     numLen = len(str(num.numerator))
                 else:
-                    numLen = len(str(num.numerator)) + 1 + len(str(num.denominator))
+                    numLen = len(str(num.numerator)) + 1 + len(
+                        str(num.denominator))
                 if numLen > maxLen:
                     maxLen = numLen
     for line in matrixArr:
@@ -182,7 +201,9 @@ def matrixToString(matrixArr, maxLen = -1):
         outputString += outputLine + "\n"
     return outputString
 
+
 # inversion functions
+
 
 def multiplyLine(inputMatrix, lineNum, k):
     if type(k) == int:
@@ -192,7 +213,8 @@ def multiplyLine(inputMatrix, lineNum, k):
         for i in range(len(inputMatrix[lineNum])):
             inputMatrix[lineNum][i].timesFraction(k)
 
-def addLine(originalMatrix, originalLineNum, matrixToAdd, lineNumToAdd, k = 1):
+
+def addLine(originalMatrix, originalLineNum, matrixToAdd, lineNumToAdd, k=1):
     newLine = []
     if type(k) == int:
         for i in range(len(matrixToAdd[lineNumToAdd])):
@@ -210,17 +232,20 @@ def addLine(originalMatrix, originalLineNum, matrixToAdd, lineNumToAdd, k = 1):
         newFrac = Fraction(1, 1)
         newLine[i].add(originalMatrix[originalLineNum][i])
         Fraction.copy(newLine[i], newFrac)
-        originalMatrix[originalLineNum][i].set(
-            newFrac.numerator,
-            newFrac.denominator
-        )
+        originalMatrix[originalLineNum][i].set(newFrac.numerator,
+                                               newFrac.denominator)
+
 
 def switchLines(originalMatrix, lineNum1, lineNum2):
     for i in range(len(originalMatrix[lineNum1])):
-        tempNum = originalMatrix[lineNum2][i].numerator     #to avoid instance linking
-        tempDen = originalMatrix[lineNum2][i].denominator   #
-        originalMatrix[lineNum2][i].set(originalMatrix[lineNum1][i].numerator, originalMatrix[lineNum1][i].denominator)
+        tempNum = originalMatrix[lineNum2][
+            i].numerator  #to avoid instance linking
+        tempDen = originalMatrix[lineNum2][i].denominator  #
+        originalMatrix[lineNum2][i].set(
+            originalMatrix[lineNum1][i].numerator,
+            originalMatrix[lineNum1][i].denominator)
         originalMatrix[lineNum1][i].set(tempNum, tempDen)
+
 
 """
 frac = Fraction(2, 3)
@@ -234,14 +259,16 @@ switchLines(matrix, 1, 2)
 printMatrix(matrix)
 """
 
+
 def determinant(originalMatrix):
     for ind in range(len(originalMatrix[0])):
         row = ind
         foundReplacementRow = True
-        while originalMatrix[row][ind].numerator == 0 or not foundReplacementRow:
+        while originalMatrix[row][
+                ind].numerator == 0 or not foundReplacementRow:
             row += 1
             if row == len(originalMatrix):
-                return 0 # Will occur if no 'viable' row is found to put a non-zero element in that index of the diagonal
+                return 0  # Will occur if no 'viable' row is found to put a non-zero element in that index of the diagonal
             foundReplacementRow = False
             if originalMatrix[row][ind].numerator != 0:
                 addLine(originalMatrix, ind, originalMatrix, row)
@@ -252,7 +279,7 @@ def determinant(originalMatrix):
 
         while row < len(originalMatrix) - 1:
             row += 1
-            if originalMatrix[ind][row].numerator != 0:
+            if originalMatrix[row][ind].numerator != 0:
                 modifiedNum = originalMatrix[row][ind].numerator
                 modifiedDen = originalMatrix[row][ind].denominator
                 modifierNum = originalMatrix[ind][ind].numerator
@@ -271,8 +298,7 @@ def determinant(originalMatrix):
     for i in range(len(originalMatrix)):
         result.timesFraction(originalMatrix[i][i])
     return result
-            
-        
+
 
 def rowIsEmpty(originalMatrix, row):
     for col in range(len(originalMatrix[row])):
@@ -280,9 +306,11 @@ def rowIsEmpty(originalMatrix, row):
             return False
     return True
 
-def REFtoIdentity(originalMatrix):
-    identity = createIdentity(len(originalMatrix)) # all row operations will be done to the identity matrix as well.
 
+def REFtoIdentity(originalMatrix):
+    identity = createIdentity(
+        len(originalMatrix)
+    )  # all row operations will be done to the identity matrix as well.
     """
     print("Onto part 2")
     for ind in range(len(originalMatrix[0])):
@@ -293,11 +321,13 @@ def REFtoIdentity(originalMatrix):
     print("Onto part 3")
     """
     for ind in range(len(originalMatrix[0])):
-        if originalMatrix[ind][ind].numerator * originalMatrix[ind][ind].denominator != 1: #checking if the fraction is equal to 1
+        if originalMatrix[ind][ind].numerator * originalMatrix[ind][
+                ind].denominator != 1:  #checking if the fraction is equal to 1
             if originalMatrix[ind][ind].numerator == 0:
                 row = ind
                 foundReplacementRow = True
-                while originalMatrix[row][ind].numerator == 0 or not foundReplacementRow:
+                while originalMatrix[row][
+                        ind].numerator == 0 or not foundReplacementRow:
                     row += 1
                     #if row == len(originalMatrix):
                     #    return 0 # Will occur if no 'viable' row is found to put a non-zero element in that index of the diagonal
@@ -312,7 +342,8 @@ def REFtoIdentity(originalMatrix):
                         printMatrix(identity)
                         print("---------------------------------------------")
                         foundReplacementRow = True
-            k = Fraction(originalMatrix[ind][ind].denominator, originalMatrix[ind][ind].numerator)
+            k = Fraction(originalMatrix[ind][ind].denominator,
+                         originalMatrix[ind][ind].numerator)
             multiplyLine(originalMatrix, ind, k)
             multiplyLine(identity, ind, k)
             print(k)
@@ -324,7 +355,8 @@ def REFtoIdentity(originalMatrix):
         while row < len(originalMatrix) - 1:
             row += 1
             if originalMatrix[row][ind].numerator != 0:
-                k = Fraction(originalMatrix[row][ind].numerator * -1, originalMatrix[row][ind].denominator)
+                k = Fraction(originalMatrix[row][ind].numerator * -1,
+                             originalMatrix[row][ind].denominator)
 
                 addLine(originalMatrix, row, originalMatrix, ind, k)
                 addLine(identity, row, identity, ind, k)
@@ -334,9 +366,8 @@ def REFtoIdentity(originalMatrix):
                 printMatrix(originalMatrix)
                 printMatrix(identity)
                 print("---------------------------------------------")
-    
+
     return identity
-                
 
 
 """
@@ -353,8 +384,7 @@ def REFtoIdentity(originalMatrix):
 
             if originalNum != 0:
 
-"""   
-
+"""
 """
 def REFsolo(originalMatrix):
     global matrixHasInverse
@@ -394,7 +424,7 @@ def REFsolo(originalMatrix):
                                 k = Fraction(den, num) # k * row would yield a 1 in this diagonal element
                                 multiplyLine(originalMatrix, row, k)
                                 print("multiplying line", row, "by", k)
-            
+
             printMatrix(originalMatrix)
 
     return originalMatrix
@@ -446,6 +476,7 @@ def REFtoIdentity(originalMatrix):
     return identity
 """
 
+
 def RREFfromREFsolo(originalMatrix):
     for i in range(len(originalMatrix)):
         row = (len(originalMatrix) - i) - 1
@@ -461,6 +492,7 @@ def RREFfromREFsolo(originalMatrix):
                     addLine(originalMatrix, row, originalMatrix, col, k)
                 printMatrix(originalMatrix)
     return originalMatrix
+
 
 def RREFtoPassedMatrix(originalMatrix, modifiedMatrix):
     for i in range(len(originalMatrix)):
@@ -482,10 +514,12 @@ def RREFtoPassedMatrix(originalMatrix, modifiedMatrix):
                 print("---------------------------------------------")
     return modifiedMatrix
 
+
 def simplifyMatrixFractions(originalMatrix):
     for row in range(len(originalMatrix)):
         for col in range(len(originalMatrix[row])):
             originalMatrix[row][col].simplify()
+
 
 outputStr = ""
 
@@ -505,7 +539,8 @@ if matrixHasInverse:
     printMatrix(REFIdentity)
 
     print("\nRREF:\n")
-    RREFMatrix = RREFtoPassedMatrix(matrix, REFIdentity) # if a matrix has REF, then it has RREF
+    RREFMatrix = RREFtoPassedMatrix(
+        matrix, REFIdentity)  # if a matrix has REF, then it has RREF
     simplifyMatrixFractions(RREFMatrix)
 
     print("Original matrix:")
